@@ -17,6 +17,7 @@ import io.netty.util.concurrent.GlobalEventExecutor;
  * @version: 1.0
  */
 public class Server {
+    //channelGroup：用于存放所有的channel
     public static ChannelGroup clients=new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
     public static void main(String[] args) {
         //线程池
@@ -39,6 +40,7 @@ class ServerChannelHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         Server.clients.add(ctx.channel());
+        System.out.println(Server.clients.size());
     }
 
     @Override
@@ -47,7 +49,9 @@ class ServerChannelHandler extends ChannelInboundHandlerAdapter {
         buf=(ByteBuf)msg;
         byte[] bytes=new byte[buf.readableBytes()];
         buf.getBytes(buf.readerIndex(),bytes);
-        System.out.println(new String(bytes));
+        String content = new String(bytes);
+        System.out.println(ctx.channel().alloc().toString());
+        //往所有的channel里发送数据
         Server.clients.writeAndFlush(msg);
     }
 
